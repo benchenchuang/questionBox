@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="zh">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"> 
+	<meta name="viewport" content="width=device-width,initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+	<title>移动手机</title>
+	<link rel="stylesheet" type="text/css" href="style/style.css">
+</head>
+<body class="home_wrap">
+	<div class="home">
+
+			<p class="lang_change">
+				<a href="#"/>中</a>/
+				<a href="#"/>EN</a>
+			</p>
+			
+		  <div class="card_content">
+		    <div class="card_box">
+					
+		      <div class="question_card">
+						<a href="javascript:void(0);" class="close"><img src="./images/icon_close.png"/></a>
+		        <div class="card_top">
+		          <div class="card_content">
+								<p>明天A股大盘是否会下杀到2300点呢？</p>
+							</div>
+		        </div>
+		        <div class="card_btn_box">
+							<div class="choose" rel="no">否</div>
+							<div class="choose" rel="yes">是</div>
+		        </div>
+		        <div class="card_choice card_reject">No</div>
+		        <div class="card_choice card_like">YES</div>
+		        <div class="card_drag"></div>
+		      </div>
+		      <div class="question_card">
+						<a href="javascript:void(0);" class="close"><img src="./images/icon_close.png"/></a>
+		        <div class="card_top">
+		          <div class="card_content">
+								<p>明天A股大盘是否会下杀到2300点呢？</p>
+							</div>
+		        </div>
+		        <div class="card_btn_box">
+							<div class="choose" rel="no">否</div>
+							<div class="choose" rel="yes">是</div>
+		        </div>
+		        <div class="card_choice card_reject">No</div>
+		        <div class="card_choice card_like">YES</div>
+		        <div class="card_drag"></div>
+					</div>
+
+					<div class="question_card inactive" id="no_question">
+		        <div class="card_top">
+		          <div class="card_content">
+								<p>答题已结束</p>
+							</div>
+		        </div>
+					</div>
+
+		    </div>
+			</div>
+			
+			<div class="ad_box">
+				<div class="ad_fixed">
+					<img class="ad_item" src="./images/ad.png"/>
+				</div>
+			</div>
+
+			<div class="footer_box">
+				<div class="footer_fixed"></div>
+			</div>
+
+	</div>
+	<!-- <script src='js/stopExecutionOnTimeout.js?t=1'></script> -->
+	<script src="js/jquery-1.9.0.min.js"></script>
+	<script>
+		
+		$(document).ready(function () {
+			
+			$('body').on("click",'.choose',function(){
+				var thisCard=$(this).parents('.question_card');
+				var status=$(this).attr("rel");
+				var cardReject=thisCard.find('.card_choice.card_reject')
+				var cardLike=thisCard.find('.card_choice.card_like')
+				if(status === 'no') {      
+					
+					setTimeout(function(){
+						cardReject.css({
+							'opacity':1,
+							'zIndex':999
+						});
+						thisCard.addClass('to-left');
+					},300)
+				}else{
+					setTimeout(function(){
+						cardLike.css({
+							'opacity':1,
+							'zIndex':999
+						});
+						thisCard.addClass('to-right');
+					},300);
+				}
+				$(this).addClass("chooseAnimation");
+
+			});
+
+
+			var animating = false;
+			var cardsCounter = 0;
+			var numOfCards = 10;
+			var decisionVal = 80;
+			var pullDeltaX = 0;
+			var deg = 0;
+			var $card, $cardReject, $cardLike;
+			//左右滑动切换的效果
+			function pullChange() {
+					animating = true;
+					deg = pullDeltaX / 10;
+					$card.css('transform', 'translateX(' + pullDeltaX + 'px) rotate(' + deg + 'deg)');
+					var opacity = pullDeltaX / 100;
+					var rejectOpacity = opacity >= 0 ? 0 : Math.abs(opacity);
+					var likeOpacity = opacity <= 0 ? 0 : opacity;
+					$cardReject.css({
+						'opacity': rejectOpacity,
+						'zIndex':999
+					});
+					$cardLike.css({
+						'opacity': likeOpacity,
+						'zIndex':999
+					});
+			};
+			//左右滑动事件
+			function release() {
+					if (pullDeltaX >= decisionVal) {
+							console.log('YES');
+							$card.addClass('to-right');
+					} else if (pullDeltaX <= -decisionVal) {
+							console.log('No');
+							$card.addClass('to-left');
+					}
+					if (Math.abs(pullDeltaX) >= decisionVal) {
+						// $card.addClass('inactive');
+						setTimeout(function () {
+								$card.remove();
+								if (cardsCounter >= numOfCards-2) {
+									return console.log('到底');
+								}
+								cardsCounter++;
+								createCart(cardsCounter+1)
+						}, 300);
+
+					}
+					if (Math.abs(pullDeltaX) < decisionVal) {
+							$card.addClass('reset');
+					}
+					setTimeout(function () {
+							$card.attr('style', '').removeClass('reset').find('.card_choice').attr('style', '');
+							pullDeltaX = 0;
+							animating = false;
+					}, 300);
+			};
+			//添加新的答题
+			function createCart(count){
+				var cardHtml=`<div class="question_card">
+						<a href="javascript:void(0);" class="close"><img src="./images/icon_close.png"/></a>
+		        <div class="card_top">
+		          <div class="card_content">
+								<p>明天A股大盘是否会下杀到2300点呢？${count}</p>
+							</div>
+		        </div>
+		        <div class="card_btn_box">
+							<div class="choose" rel="no">否</div>
+							<div class="choose" rel="yes">是</div>
+		        </div>
+		        <div class="card_choice card_reject">No</div>
+		        <div class="card_choice card_like">YES</div>
+		        <div class="card_drag"></div>
+		      </div>`;
+				$('#no_question').before(cardHtml);
+			}
+			//跳过答题卡
+			$(document).on('click','.close',function(){
+				var thisCard=$(this).parent();
+				thisCard.addClass('card_leave');
+				setTimeout(function(){
+					thisCard.remove();
+				},300);
+				cardsCounter++;
+				createCart(cardsCounter+1);
+			});
+			//滑动开始
+			$(document).on('mousedown touchstart', '.question_card:not(.inactive)', function (e) {
+					if (animating) return;
+					$card = $(this);
+					$cardReject = $('.card_choice.card_reject', $card);
+					$cardLike = $('.card_choice.card_like', $card);
+					var startX = e.pageX || e.originalEvent.touches[0].pageX;
+				//滑动时
+				$(document).on('mousemove touchmove', function (e) {
+						var x = e.pageX || e.originalEvent.touches[0].pageX;
+						pullDeltaX = x - startX;
+						if (!pullDeltaX)
+								return;
+						pullChange();
+				});
+				//滑动结束
+				$(document).on('mouseup touchend', function () {
+						$(document).off('mousemove touchmove mouseup touchend');
+						if (!pullDeltaX)
+								return;
+						release();
+				});
+			});
+
+			//禁止上下滑动
+			function stopScrolling(event) {
+				event.preventDefault();
+			}
+			document.addEventListener('touchmove',stopScrolling,false);
+		
+		});
+	</script>
+
+</body>
+</html>
